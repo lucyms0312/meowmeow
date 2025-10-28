@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Stellar Garden — Single File</title>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#0f1724; --accent:#7c3aed; --muted:#9aa4b2; --glass: rgba(255,255,255,0.04);
+      --radius:14px; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.12), transparent), linear-gradient(180deg,#071026 0%, #071428 50%, #0b1020 100%); color:#e6eef8; min-height:100vh;}
+    .wrap{max-width:980px;margin:40px auto;padding:24px}
+
+    header{Display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#ff6b6b);display:flex;align-items:center;justify-content:center;font-weight:700;color:#081228}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    main{margin-top:28px;display:grid;grid-template-columns:1fr;gap:20px}
+    .hero{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:20px;border-radius:var(--radius);box-shadow:0 8px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.04);display:flex;gap:20px;align-items:center}
+    .hero .left{flex:1}
+    .hero h2{margin:0 0 8px 0}
+    .hero p{margin:0;color:var(--muted)}
+    .cta{margin-top:12px}
+
+    .panel{background:var(--card);padding:16px;border-radius:12px;border:1px solid var(--glass)}
+
+    .seed-area{display:flex;gap:12px;flex-direction:column}
+    .seed-controls{display:flex;gap:8px;align-items:center}
+    input[type=text]{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    button{background:var(--accent);border:0;padding:10px 14px;border-radius:8px;color:white;cursor:pointer;font-weight:600}
+    button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+
+    .seed-output{margin-top:12px;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:#dcecff}
+    .muted{color:var(--muted);font-size:13px}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .card{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03)}
+    .spec-img{width:100%;height:130px;object-fit:cover;border-radius:8px;margin-bottom:8px}
+
+    footer{margin-top:22px;color:var(--muted);font-size:13px;text-align:center}
+
+    /* small animations */
+    .twinkle{position:relative}
+    .twinkle::after{content:'';position:absolute;right:-6px;top:-6px;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.12);filter:blur(6px);opacity:0.8;animation:blink 3s linear infinite}
+    @keyframes blink{0%{opacity:0.1}50%{opacity:0.9}100%{opacity:0.1}}
+
+    /* responsive */
+    @media(min-width:860px){main{grid-template-columns:2fr 1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">SG</div>
+        <div>
+          <h1>Stellar Garden</h1>
+          <p class="lead">tiny ideas, big constellations</p>
+        </div>
+      </div>
+      <nav class="muted">✨ Explore · Gallery · Plant a seed</nav>
+    </header>
+
+    <main>
+      <section class="hero panel">
+        <div class="left">
+          <h2>Plant a tiny, ridiculous idea — right now.</h2>
+          <p>Click the button, enter a name (optional), and the garden will return a small creative spark you can build on or laugh at.</p>
+          <div class="cta">
+            <button id="plantBtn">Plant a Seed</button>
+            <button class="secondary" id="surpriseBtn">Surprise Me</button>
+          </div>
+        </div>
+        <div class="right" style="width:320px">
+          <div class="panel seed-area">
+            <label class="muted">Your name (optional)</label>
+            <div class="seed-controls">
+              <input id="nameInput" type="text" placeholder="e.g. Mira, Akira, or 'a sleepy cat'" />
+              <button id="copyBtn">Copy</button>
+            </div>
+            <div id="seedOutput" class="seed-output" aria-live="polite">No seed planted yet. Try it!</div>
+            <div class="muted" style="margin-top:6px">Seeds are generated locally — nothing leaves your browser.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3 style="margin-top:0">Gallery — Specimens from the Grove</h3>
+        <div class="grid" id="gallery"></div>
+      </section>
+
+      <aside class="panel">
+        <h3 style="margin-top:0">How it works</h3>
+        <p class="muted">A tiny JS list of playful prompts + your name mixes into a short, shareable idea. Everything is friendly and whimsical — perfect for a creative warm-up or a fun social post.</p>
+        <div style="height:10px"></div>
+        <h4 style="margin:0 0 8px 0">Quick actions</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="saveBtn" class="secondary">Save as file</button>
+          <button id="tweetBtn" class="secondary">Share to Twitter</button>
+        </div>
+      </aside>
+
+    </main>
+
+    <footer>
+      Made with curiosity • View source, tweak, and plant more seeds
+    </footer>
+  </div>
+
+  <script>
+    // Simple single-file JS — no frameworks.
+    (function(){
+      const seeds = [
+        'A paper airplane that remembers where it flew.',
+        'A tiny library of songs for houseplants.',
+        'An umbrella that whispers which way the sun will be.',
+        'A pocket planetarium you can wear as a hat.',
+        'A recipe book that uses moonlight as an ingredient.',
+        'A map that updates itself when you dream.',
+        'Sneakers that tidy up your desktop while you walk.',
+        'A teapot that tells stories of the leaves it used.',
+        'Stickers that rearrange themselves into constellations overnight.',
+        'A clock that counts down to your next brilliant bad idea.'
+      ];
+
+      function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+      const plantBtn = document.getElementById('plantBtn');
+      const surpriseBtn = document.getElementById('surpriseBtn');
+      const seedOutput = document.getElementById('seedOutput');
+      const nameInput = document.getElementById('nameInput');
+      const copyBtn = document.getElementById('copyBtn');
+      const gallery = document.getElementById('gallery');
+      const saveBtn = document.getElementById('saveBtn');
+      const tweetBtn = document.getElementById('tweetBtn');
+
+      function formatSeed(person, idea){
+        const when = new Date();
+        const time = when.toLocaleString();
+        if(person) return `\u2728 ${person}'s Seed — ${idea} \n\nPlanted: ${time}`;
+        return `\u2728 Seed — ${idea} \n\nPlanted: ${time}`;
+      }
+
+      plantBtn.addEventListener('click', ()=>{
+        const name = nameInput.value.trim();
+        const idea = rand(seeds);
+        const text = formatSeed(name, idea);
+        seedOutput.textContent = text;
+        pushToGallery(idea);
+      });
+
+      surpriseBtn.addEventListener('click', ()=>{
+        nameInput.value = ['A friend','Someone brave','An old oak','A tiny robot'][Math.floor(Math.random()*4)];
+        plantBtn.click();
+      });
+
+      copyBtn.addEventListener('click', ()=>{
+        const text = seedOutput.textContent;
+        if(!text || text.startsWith('No seed')) return;
+        navigator.clipboard && navigator.clipboard.writeText(text).then(()=>{
+          copyBtn.textContent = 'Copied!';
+          setTimeout(()=> copyBtn.textContent = 'Copy',900);
+        }).catch(()=>{
+          alert('Could not copy — try selecting the text.');
+        });
+      });
+
+      function pushToGallery(idea){
+        const card = document.createElement('div');
+        card.className = 'card';
+        const img = document.createElement('img');
+        img.className = 'spec-img';
+        // picsum provides random images — use idea length as seed-ish value
+        const seed = encodeURIComponent(idea).slice(0,6).replace(/%/g,'');
+        img.src = `https://picsum.photos/seed/${seed}/800/500`;
+        img.alt = idea;
+        const title = document.createElement('div');
+        title.textContent = idea;
+        title.style.fontWeight = '600';
+        title.style.marginTop = '6px';
+        const sub = document.createElement('div');
+        sub.className = 'muted';
+        sub.textContent = new Date().toLocaleTimeString();
+        card.appendChild(img);
+        card.appendChild(title);
+        card.appendChild(sub);
+        gallery.prepend(card);
+        // keep gallery to 12 items
+        while(gallery.children.length>12) gallery.removeChild(gallery.lastChild);
+      }
+
+      // preload a few specimens
+      for(let i=0;i<6;i++) pushToGallery(rand(seeds));
+
+      saveBtn.addEventListener('click', ()=>{
+        const text = seedOutput.textContent || 'No seed planted.';
+        const blob = new Blob([text],{type:'text/plain;charset=utf-8'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'seed.txt'; document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      tweetBtn.addEventListener('click', ()=>{
+        const text = seedOutput.textContent || 'Planting a seed in the Stellar Garden!';
+        const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+        window.open(url,'_blank');
+      });
+
+    })();
+  </script>
+</body>
+</html>
